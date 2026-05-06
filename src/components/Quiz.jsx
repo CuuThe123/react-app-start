@@ -5,16 +5,38 @@ import QUESTIONS from "../questions.js";
 import QuestionTimer from "./QuestionTimer.jsx";
 export default function Quiz() {
   const [userAnswers, setUserAnswers] = useState([]);
-  const activeQuestionIndex = userAnswers.length;
+  const [answerState, setAnswerState] = useState("");
+
+  //onst activeQuestionIndex = userAnswers.length;
+  //ktra người dùng chưa trl
+  const activeQuestionIndex = answerState === "" ? userAnswers.length : userAnswers.length - 1;
 
   //Kiểm tra kết thúc câu hỏi chưa
   const quizComplete = activeQuestionIndex === QUESTIONS.length;
 
-  const handleSelectAnswer = useCallback(function handleSelectAnswer(selectedAnswer) {
-    setUserAnswers((prevUserAnswers) => {
-      return [...prevUserAnswers, selectedAnswer];
-    });
-  }, []);
+  const handleSelectAnswer = useCallback(
+    function handleSelectAnswer(selectedAnswer) {
+      //logic khi chọn câu trả lời xong
+      setAnswerState("answered");
+      setUserAnswers((prevUserAnswers) => {
+        return [...prevUserAnswers, selectedAnswer];
+      });
+      //setTimeout
+      setTimeout(() => {
+        //so sánh câu trả lời của người dùng với đáp án
+        if (selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0]) {
+          setAnswerState("correct");
+        } else {
+          setAnswerState("wrong");
+        }
+
+        setTimeout(() => {
+          setAnswerState("");
+        }, 2000);
+      }, 1000);
+    },
+    [activeQuestionIndex],
+  );
 
   const handleSkipAnswer = useCallback(() => {
     handleSelectAnswer(null);
@@ -55,12 +77,26 @@ export default function Quiz() {
           <ul id="answers">
             {/* {QUESTIONS[activeQuestionIndex].answers.map((answer) => { */}
             {shuffledAnswers.map((answer) => {
+              const isSelected = userAnswers[userAnswers.length - 1] === answer;
+              let cssClass = "";
+              if (answerState === "answered" && isSelected) {
+                cssClass = "selected";
+              }
+
+              if (answerState === "correct" || (answerState === "wrong" && isSelected)) {
+                cssClass = answerState;
+              }
               return (
                 <li
                   key={answer}
                   className="answer"
                 >
-                  <button onClick={() => handleSelectAnswer(answer)}>{answer}</button>
+                  <button
+                    className={cssClass}
+                    onClick={() => handleSelectAnswer(answer)}
+                  >
+                    {answer}
+                  </button>
                 </li>
               );
             })}
