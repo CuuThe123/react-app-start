@@ -1,8 +1,7 @@
 import { useCallback, useState } from "react";
 import QUESTIONS from "../questions.js";
 import QuizCompleteImg from "../assets/quiz-complete.png";
-import QuestionTimer from "./QuestionTimer.jsx";
-import Answers from "./Answers.jsx";
+import Question from "./Question.jsx";
 
 export default function Quiz() {
   const [userAnswers, setUserAnswers] = useState([]);
@@ -54,21 +53,15 @@ export default function Quiz() {
   return (
     <>
       <div id="quiz">
-        <div id="question">
-          <QuestionTimer
-            key={activeQuestionIndex}
-            timeout={10000}
-            onTimeout={handleSkipAnswer}
-          />
-          <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
-          <Answers
-            key={activeQuestionIndex}
-            answers={QUESTIONS[activeQuestionIndex].answers}
-            selectedAnswer={userAnswers[userAnswers.length - 1]}
-            answerState={answerState}
-            onSelect={handleSelectAnswer}
-          />
-        </div>
+        <Question
+          key={activeQuestionIndex}
+          questionText={QUESTIONS[activeQuestionIndex].text}
+          answers={QUESTIONS[activeQuestionIndex].answers}
+          selectedAnswer={userAnswers[userAnswers.length - 1]}
+          answerState={answerState}
+          onSelectAnswer={handleSelectAnswer}
+          onSkipAnswer={handleSkipAnswer}
+        />
       </div>
     </>
   );
