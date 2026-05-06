@@ -1,29 +1,29 @@
-import { useCallback, useState } from "react";
-import QuizCompleteImg from "../assets/quiz-complete.png";
-
+import { useCallback, useRef, useState } from "react";
 import QUESTIONS from "../questions.js";
+import QuizCompleteImg from "../assets/quiz-complete.png";
 import QuestionTimer from "./QuestionTimer.jsx";
+
 export default function Quiz() {
+  const shuffledAnswers = useRef();
   const [userAnswers, setUserAnswers] = useState([]);
   const [answerState, setAnswerState] = useState("");
 
-  //onst activeQuestionIndex = userAnswers.length;
-  //ktra người dùng chưa trl
+  //const activeQuestionIndex = userAnswers.length;
   const activeQuestionIndex = answerState === "" ? userAnswers.length : userAnswers.length - 1;
 
-  //Kiểm tra kết thúc câu hỏi chưa
+  //kiểm tra xem đã hết câu hỏi chưa?
   const quizComplete = activeQuestionIndex === QUESTIONS.length;
 
   const handleSelectAnswer = useCallback(
     function handleSelectAnswer(selectedAnswer) {
       //logic khi chọn câu trả lời xong
       setAnswerState("answered");
-      setUserAnswers((prevUserAnswers) => {
-        return [...prevUserAnswers, selectedAnswer];
+      setUserAnswers((prevUserAnaswers) => {
+        return [...prevUserAnaswers, selectedAnswer];
       });
-      //setTimeout
+      //set timeout
       setTimeout(() => {
-        //so sánh câu trả lời của người dùng với đáp án
+        //so sánh câu trả lời của người dùng với đáp án(index 0 trong mảng)
         if (selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0]) {
           setAnswerState("correct");
         } else {
@@ -46,11 +46,12 @@ export default function Quiz() {
     return (
       <div id="summary">
         <img src={QuizCompleteImg} />
-        <h2>Quiz completed</h2>
+        <h2>Quiz Completed!</h2>
       </div>
     );
   }
 
+  // thuật toán Fisher–Yates Shuffle
   function shuffleArray(array) {
     for (let i = array.length - 1; i >= 1; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -58,10 +59,13 @@ export default function Quiz() {
     }
     return array;
   }
-
-  //tạo bản sao mảng gốc 0 để xáo trộn (0 làm thay đổi mảng gốc) -
-  const shuffledAnswers = [...QUESTIONS[activeQuestionIndex].answers];
-  shuffleArray(shuffledAnswers);
+  // chỉ shuffle 1 lần cho mỗi câu hỏi
+  // các lần render sau sẽ dùng lại dữ liệu đã shuffle
+  if (!shuffledAnswers.current) {
+    //tạo bản sao mảng gốc 0 để xáo trộn (0 làm thay đổi mảng gốc) -
+    shuffledAnswers.current = [...QUESTIONS[activeQuestionIndex].answers];
+    shuffleArray(shuffledAnswers.current);
+  }
 
   return (
     <>
@@ -75,15 +79,16 @@ export default function Quiz() {
           <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
 
           <ul id="answers">
-            {/* {QUESTIONS[activeQuestionIndex].answers.map((answer) => { */}
-            {shuffledAnswers.map((answer) => {
+            {/* {QUESTIONS[activeQuestionIndex].answers.map((answer) => ( */}
+            {shuffledAnswers.current.map((answer) => {
               const isSelected = userAnswers[userAnswers.length - 1] === answer;
               let cssClass = "";
+
               if (answerState === "answered" && isSelected) {
                 cssClass = "selected";
               }
 
-              if (answerState === "correct" || (answerState === "wrong" && isSelected)) {
+              if ((answerState === "correct" || answerState === "wrong") && isSelected) {
                 cssClass = answerState;
               }
               return (
