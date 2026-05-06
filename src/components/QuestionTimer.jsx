@@ -4,15 +4,23 @@ export default function QuestionTimer({ timeout, onTimeout }) {
   const [remainingTime, setRemainingTime] = useState(timeout);
   useEffect(() => {
     console.log("Timeout được gọi");
-    setTimeout(onTimeout, timeout);
+    const setTimeoutId = setTimeout(onTimeout, timeout);
+    return () => {
+      clearTimeout(setTimeoutId);
+    };
   }, [timeout, onTimeout]);
 
   useEffect(() => {
     console.log("set interval được gọi");
-    setInterval(() => {
+    const interval = setInterval(() => {
       setRemainingTime((preRemainingTime) => preRemainingTime - 100);
     }, 100);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
+
   return (
     <>
       <progress
