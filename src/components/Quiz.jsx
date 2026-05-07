@@ -5,37 +5,16 @@ import Question from "./Question.jsx";
 
 export default function Quiz() {
   const [userAnswers, setUserAnswers] = useState([]);
-  const [answerState, setAnswerState] = useState("");
-
-  //const activeQuestionIndex = userAnswers.length;
-  const activeQuestionIndex = answerState === "" ? userAnswers.length : userAnswers.length - 1;
+  const activeQuestionIndex = userAnswers.length;
 
   //kiểm tra xem đã hết câu hỏi chưa?
   const quizComplete = activeQuestionIndex === QUESTIONS.length;
 
-  const handleSelectAnswer = useCallback(
-    function handleSelectAnswer(selectedAnswer) {
-      //logic khi chọn câu trả lời xong
-      setAnswerState("answered");
-      setUserAnswers((prevUserAnswers) => {
-        return [...prevUserAnswers, selectedAnswer];
-      });
-      //set timeout
-      setTimeout(() => {
-        //so sánh câu trả lời của người dùng với đáp án(index 0 trong mảng)
-        if (selectedAnswer === QUESTIONS[activeQuestionIndex].answers[0]) {
-          setAnswerState("correct");
-        } else {
-          setAnswerState("wrong");
-        }
-
-        setTimeout(() => {
-          setAnswerState("");
-        }, 2000);
-      }, 1000);
-    },
-    [activeQuestionIndex],
-  );
+  const handleSelectAnswer = useCallback(function handleSelectAnswer(selectedAnswer) {
+    setUserAnswers((prevUserAnswers) => {
+      return [...prevUserAnswers, selectedAnswer];
+    });
+  }, []);
 
   const handleSkipAnswer = useCallback(() => {
     handleSelectAnswer(null);
@@ -55,10 +34,7 @@ export default function Quiz() {
       <div id="quiz">
         <Question
           key={activeQuestionIndex}
-          questionText={QUESTIONS[activeQuestionIndex].text}
-          answers={QUESTIONS[activeQuestionIndex].answers}
-          selectedAnswer={userAnswers[userAnswers.length - 1]}
-          answerState={answerState}
+          index={activeQuestionIndex}
           onSelectAnswer={handleSelectAnswer}
           onSkipAnswer={handleSkipAnswer}
         />
