@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 export default function QuestionTimer({ timeout, onTimeout, mode }) {
   const [remainingTime, setRemainingTime] = useState(timeout);
   useEffect(() => {
-    console.log("Timeout được gọi");
     const setTimeoutId = setTimeout(onTimeout, timeout);
     return () => {
       clearTimeout(setTimeoutId);
@@ -11,7 +10,6 @@ export default function QuestionTimer({ timeout, onTimeout, mode }) {
   }, [timeout, onTimeout]);
 
   useEffect(() => {
-    console.log("set interval được gọi");
     const interval = setInterval(() => {
       setRemainingTime((preRemainingTime) => preRemainingTime - 100);
     }, 100);
